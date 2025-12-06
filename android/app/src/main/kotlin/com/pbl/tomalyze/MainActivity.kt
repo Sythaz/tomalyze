@@ -1,4 +1,4 @@
-package com.example.tomalyze
+package com.pbl.tomalyze
 
 import io.flutter.embedding.android.FlutterActivity
 
