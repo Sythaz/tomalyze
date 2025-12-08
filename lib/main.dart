@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
+
+import 'presentation/views/main_page.dart';
 
 void main() {
+  // debugPaintSizeEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
   runApp(const MainApp());
 }
@@ -13,9 +17,7 @@ class MainApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tomalyze',
-      home: const Scaffold(
-        body: SafeArea(child: Center(child: Text('Hello World!'))),
-      ),
+      home: MainPage(),
     );
   }
 }
