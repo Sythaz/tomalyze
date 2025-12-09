@@ -16,235 +16,243 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    return Scaffold(
+      backgroundColor: AppColors.white,
+      body: SafeArea(
+        child: ListView(
+          padding: const EdgeInsets.all(20),
           children: [
-            Row(
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Image.asset(
-                  'assets/icon/app-icon.png',
-                  width: 30,
-                  height: 30,
-                  fit: BoxFit.cover,
+                Row(
+                  children: [
+                    Image.asset(
+                      'assets/icon/app-icon.png',
+                      width: 30,
+                      height: 30,
+                      fit: BoxFit.cover,
+                    ),
+                    const SizedBox(width: 10),
+                    Text(
+                      'Welcome, ${'Syafiq'}!',
+                      style: AppTextStyles.bold.copyWith(fontSize: 24),
+                    ),
+                  ],
                 ),
-                const SizedBox(width: 10),
+                const SizedBox(height: 5),
                 Text(
-                  'Welcome, ${'Syafiq'}!',
-                  style: AppTextStyles.bold.copyWith(fontSize: 24),
+                  'Selamat datang di Tomalyze!',
+                  style: AppTextStyles.regular.copyWith(
+                    fontSize: 14,
+                    color: AppColors.textGrey,
+                  ),
                 ),
-              ],
-            ),
-            const SizedBox(height: 5),
-            Text(
-              'Selamat datang di Tomalyze!',
-              style: AppTextStyles.regular.copyWith(
-                fontSize: 14,
-                color: AppColors.textGrey,
-              ),
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: Text(
-                'Scan Tomato',
-                style: AppTextStyles.bold.copyWith(
-                  fontSize: 16,
-                  color: AppColors.white,
-                ),
-              ),
-              icon: SvgPicture.asset(
-                AppIcons.camera,
-                width: 25,
-                height: 25,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.white,
-                  BlendMode.srcIn,
-                ),
-              ),
-              backgroundColor: AppColors.primaryRed,
-              shadowColor: AppColors.primaryRed.withValues(alpha: 0.6),
-              onTap: () {},
-            ),
-            const SizedBox(height: 20),
-            CustomButton(
-              text: Text(
-                'Upload Image',
-                style: AppTextStyles.bold.copyWith(fontSize: 16),
-              ),
-              icon: SvgPicture.asset(
-                AppIcons.image,
-                width: 25,
-                height: 25,
-                colorFilter: const ColorFilter.mode(
-                  AppColors.blackGrey,
-                  BlendMode.srcIn,
-                ),
-              ),
-              backgroundColor: AppColors.white,
-              shadowColor: AppColors.white,
-              onTap: () {},
-            ),
-            const SizedBox(height: 20),
-            CustomSection(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(5),
-                    decoration: BoxDecoration(
-                      color: AppColors.infoBlue.withValues(alpha: 0.2),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: const Icon(
-                      AppIcons.info,
-                      color: AppColors.infoBlue,
-                      size: 30,
+                const SizedBox(height: 20),
+                CustomButton(
+                  text: Text(
+                    'Scan Tomato',
+                    style: AppTextStyles.bold.copyWith(
+                      fontSize: 16,
+                      color: AppColors.white,
                     ),
                   ),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const SizedBox(height: 10),
-                        Text(
-                          'How it works?',
-                          style: AppTextStyles.bold.copyWith(fontSize: 16),
-                        ),
-                        const SizedBox(height: 5),
-                        Text(
-                          'Simply take a photo or upload an image of your tomato. Our model will analyze the ripeness and give you instant results with accuracy scores.',
-                          style: AppTextStyles.regular.copyWith(fontSize: 14),
-                          softWrap: true,
-                        ),
-                      ],
+                  icon: SvgPicture.asset(
+                    AppIcons.camera,
+                    width: 25,
+                    height: 25,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.white,
+                      BlendMode.srcIn,
                     ),
                   ),
-                ],
-              ),
-            ),
-            SizedBox(height: 20),
-            CustomSection(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Ripeness Stages',
+                  backgroundColor: AppColors.primaryRed,
+                  shadowColor: AppColors.primaryRed.withValues(alpha: 0.6),
+                  onTap: () {},
+                ),
+                const SizedBox(height: 20),
+                CustomButton(
+                  text: Text(
+                    'Upload Image',
                     style: AppTextStyles.bold.copyWith(fontSize: 16),
                   ),
-                  const SizedBox(height: 10),
-                  Row(
+                  icon: SvgPicture.asset(
+                    AppIcons.image,
+                    width: 25,
+                    height: 25,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.blackGrey,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  backgroundColor: AppColors.white,
+                  shadowColor: AppColors.white,
+                  onTap: () {},
+                ),
+                const SizedBox(height: 20),
+                CustomSection(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        width: 80,
-                        child: customBadge(
-                          backgroundColor: AppColors.successGreen,
-                          text: 'Unripe',
+                      Container(
+                        padding: const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          color: AppColors.infoBlue.withValues(alpha: 0.2),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: const Icon(
+                          AppIcons.info,
+                          color: AppColors.infoBlue,
+                          size: 30,
                         ),
                       ),
                       const SizedBox(width: 10),
-                      ripenessText(
-                        title: 'Green',
-                        titleColor: AppColors.successGreen,
-                        description: ' - Not yet ripe',
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    children: [
-                      SizedBox(
-                        width: 80,
-                        child: customBadge(
-                          backgroundColor: AppColors.warningOrange,
-                          text: 'Half-ripe',
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const SizedBox(height: 10),
+                            Text(
+                              'How it works?',
+                              style: AppTextStyles.bold.copyWith(fontSize: 16),
+                            ),
+                            const SizedBox(height: 5),
+                            Text(
+                              'Simply take a photo or upload an image of your tomato. Our model will analyze the ripeness and give you instant results with accuracy scores.',
+                              style: AppTextStyles.regular.copyWith(
+                                fontSize: 14,
+                              ),
+                              softWrap: true,
+                            ),
+                          ],
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      ripenessText(
-                        title: 'Oranye',
-                        titleColor: AppColors.warningOrange,
-                        description: ' - Ripening in progress',
-                      ),
                     ],
                   ),
-                  const SizedBox(height: 10),
-                  Row(
+                ),
+                SizedBox(height: 20),
+                CustomSection(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      SizedBox(
-                        width: 80,
-                        child: customBadge(
-                          backgroundColor: AppColors.errorRed,
-                          text: 'Ripe',
-                        ),
+                      Text(
+                        'Ripeness Stages',
+                        style: AppTextStyles.bold.copyWith(fontSize: 16),
                       ),
-                      const SizedBox(width: 10),
-                      ripenessText(
-                        title: 'Red',
-                        titleColor: AppColors.errorRed,
-                        description: ' - Ready to eat',
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Recent Scans',
-              style: AppTextStyles.bold.copyWith(fontSize: 16),
-            ),
-            Column(
-              children: List.generate(3, (index) {
-                return Column(
-                  children: [
-                    const SizedBox(height: 10),
-                    CustomSection(
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      const SizedBox(height: 10),
+                      Row(
                         children: [
-                          Row(
-                            children: [
-                              Image.asset(
-                                'assets/icon/app-icon.png',
-                                width: 50,
-                                height: 50,
-                              ),
-                              const SizedBox(width: 10),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    'Ripe',
-                                    style: AppTextStyles.bold.copyWith(
-                                      fontSize: 12,
-                                      color: AppColors.errorRed,
-                                    ),
-                                  ),
-                                  Text(
-                                    'Scanned 2 hours ago',
-                                    style: AppTextStyles.regular.copyWith(
-                                      fontSize: 12,
-                                      color: AppColors.blackGrey,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                          SizedBox(
+                            width: 80,
+                            child: customBadge(
+                              backgroundColor: AppColors.successGreen,
+                              text: 'Unripe',
+                            ),
                           ),
-                          customBadge(
-                            backgroundColor: AppColors.primaryRed,
-                            text: '90%',
+                          const SizedBox(width: 10),
+                          ripenessText(
+                            title: 'Green',
+                            titleColor: AppColors.successGreen,
+                            description: ' - Not yet ripe',
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                );
-              }),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            child: customBadge(
+                              backgroundColor: AppColors.warningOrange,
+                              text: 'Half-ripe',
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ripenessText(
+                            title: 'Oranye',
+                            titleColor: AppColors.warningOrange,
+                            description: ' - Ripening in progress',
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        children: [
+                          SizedBox(
+                            width: 80,
+                            child: customBadge(
+                              backgroundColor: AppColors.errorRed,
+                              text: 'Ripe',
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          ripenessText(
+                            title: 'Red',
+                            titleColor: AppColors.errorRed,
+                            description: ' - Ready to eat',
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  'Recent Scans',
+                  style: AppTextStyles.bold.copyWith(fontSize: 16),
+                ),
+                Column(
+                  children: List.generate(3, (index) {
+                    return Column(
+                      children: [
+                        const SizedBox(height: 10),
+                        CustomSection(
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Image.asset(
+                                    'assets/icon/app-icon.png',
+                                    width: 50,
+                                    height: 50,
+                                  ),
+                                  const SizedBox(width: 10),
+                                  Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        'Ripe',
+                                        style: AppTextStyles.bold.copyWith(
+                                          fontSize: 12,
+                                          color: AppColors.errorRed,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Scanned 2 hours ago',
+                                        style: AppTextStyles.regular.copyWith(
+                                          fontSize: 12,
+                                          color: AppColors.blackGrey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                              customBadge(
+                                backgroundColor: AppColors.primaryRed,
+                                text: '90%',
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    );
+                  }),
+                ),
+              ],
             ),
           ],
         ),

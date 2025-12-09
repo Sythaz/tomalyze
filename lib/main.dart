@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-
-import 'presentation/views/main_page.dart';
+import 'package:tomalyze/presentation/views/main_page.dart';
 
 void main() {
   // debugPaintSizeEnabled = true;
