@@ -80,9 +80,26 @@ class _UploadPageState extends State<UploadPage> {
                         )
                       : ClipRRect(
                           borderRadius: BorderRadius.circular(32),
-                          child: Image.file(
-                            _selectedImage!,
-                            fit: BoxFit.contain,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [
+                              Image.file(_selectedImage!, fit: BoxFit.contain),
+                              Container(
+                                color: AppColors.blackGrey.withValues(
+                                  alpha: 0.3,
+                                ),
+                                child: const Center(
+                                  child: Text(
+                                    'Click to change photo',
+                                    style: TextStyle(
+                                      color: AppColors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                 ),
@@ -122,6 +139,8 @@ class _UploadPageState extends State<UploadPage> {
                 backgroundColor: AppColors.buttonPink,
                 shadowColor: AppColors.primaryRed,
                 onTap: () {
+                  _selectedImage = null;
+
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(builder: (context) => const ScanPage()),

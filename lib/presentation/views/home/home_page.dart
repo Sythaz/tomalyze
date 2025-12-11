@@ -6,6 +6,9 @@ import 'package:tomalyze/core/constants/app_text_styles.dart';
 import 'package:tomalyze/presentation/widgets/custom_button.dart';
 import 'package:tomalyze/presentation/widgets/custom_section.dart';
 
+import '../scan/scan_page.dart';
+import '../upload/upload_page.dart';
+
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
 
@@ -14,6 +17,13 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final List<Map<String, String>> _recentScans = [
+    {'stage': 'Ripe', 'time': 'Scanned 2 hours ago', 'score': '90%'},
+    {'stage': 'Half-ripe', 'time': 'Scanned 5 hours ago', 'score': '75%'},
+    {'stage': 'Unripe', 'time': 'Scanned 1 day ago', 'score': '20%'},
+    {'stage': 'Ripe', 'time': 'Scanned 3 days ago', 'score': '88%'},
+    {'stage': 'Half-ripe', 'time': 'Scanned 5 days ago', 'score': '60%'},
+  ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -68,7 +78,12 @@ class _HomePageState extends State<HomePage> {
                   ),
                   backgroundColor: AppColors.primaryRed,
                   shadowColor: AppColors.primaryRed.withValues(alpha: 0.6),
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const ScanPage()),
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
                 CustomButton(
@@ -87,7 +102,14 @@ class _HomePageState extends State<HomePage> {
                   ),
                   backgroundColor: AppColors.white,
                   shadowColor: AppColors.white,
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const UploadPage(),
+                      ),
+                    );
+                  },
                 ),
                 const SizedBox(height: 20),
                 CustomSection(
@@ -198,16 +220,38 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 const SizedBox(height: 20),
-                Text(
-                  'Recent Scans',
-                  style: AppTextStyles.bold.copyWith(fontSize: 16),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Recent Scans',
+                      style: AppTextStyles.bold.copyWith(fontSize: 16),
+                    ),
+                    GestureDetector(
+                      onTap: () {
+                        //
+                      },
+                      child: Text(
+                        'Show all',
+                        style: AppTextStyles.bold.copyWith(
+                          fontSize: 12,
+                          color: AppColors.primaryRed,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+                const SizedBox(height: 10),
                 Column(
-                  children: List.generate(3, (index) {
-                    return Column(
-                      children: [
-                        const SizedBox(height: 10),
-                        CustomSection(
+                  children: [
+                    ..._recentScans.asMap().entries.take(3).map((entry) {
+                      final index = entry.key;
+                      final scan = entry.value;
+                      return Container(
+                        margin: index != 0
+                            ? const EdgeInsets.only(top: 10)
+                            : null,
+                        child: CustomSection(
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
@@ -224,14 +268,18 @@ class _HomePageState extends State<HomePage> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Ripe',
+                                        scan['stage'] ?? '',
                                         style: AppTextStyles.bold.copyWith(
                                           fontSize: 12,
-                                          color: AppColors.errorRed,
+                                          color: scan['stage'] == 'Ripe'
+                                              ? AppColors.errorRed
+                                              : (scan['stage'] == 'Unripe'
+                                                    ? AppColors.successGreen
+                                                    : AppColors.warningOrange),
                                         ),
                                       ),
                                       Text(
-                                        'Scanned 2 hours ago',
+                                        scan['time'] ?? '',
                                         style: AppTextStyles.regular.copyWith(
                                           fontSize: 12,
                                           color: AppColors.blackGrey,
@@ -243,14 +291,35 @@ class _HomePageState extends State<HomePage> {
                               ),
                               customBadge(
                                 backgroundColor: AppColors.primaryRed,
-                                text: '90%',
+                                text: scan['score'] ?? '',
                               ),
                             ],
                           ),
                         ),
-                      ],
-                    );
-                  }),
+                      );
+                    }),
+                    if (_recentScans.length > 3) const SizedBox(height: 10),
+                    if (_recentScans.length > 3)
+                      InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () {
+                          //
+                        },
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 5,
+                          ),
+                          child: Text(
+                            'And more..',
+                            style: AppTextStyles.regular.copyWith(
+                              fontSize: 12,
+                              color: AppColors.blackGrey,
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
                 ),
               ],
             ),
