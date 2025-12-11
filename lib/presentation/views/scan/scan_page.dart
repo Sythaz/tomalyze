@@ -48,6 +48,7 @@ class _ScanPageState extends State<ScanPage> {
 
   Future<void> _init() async {
     final allowed = await _checkCameraPermission();
+    print('Camera permission allowed: $allowed');
 
     setState(() => _isPermissAllowed = allowed);
 
@@ -103,13 +104,13 @@ class _ScanPageState extends State<ScanPage> {
     }
 
     final file = await _cameraController!.takePicture();
-    File capturedFile = File(file.path);
+    final captured = File(file.path);
 
     try {
       await _cameraController?.pausePreview();
     } catch (_) {}
 
-    setState(() => _capturedPhoto = capturedFile);
+    setState(() => _capturedPhoto = captured);
   }
 
   Future<void> _retakePhoto() async {
@@ -123,7 +124,9 @@ class _ScanPageState extends State<ScanPage> {
 
     if (isRetake) {
       try {
+        await Future.delayed(const Duration(milliseconds: 50));
         await _cameraController?.resumePreview();
+        setState(() => _capturedPhoto = null);
       } catch (_) {}
 
       setState(() => _capturedPhoto = null);
@@ -160,9 +163,14 @@ class _ScanPageState extends State<ScanPage> {
       appBar: _buildAppBar(context),
       body: Builder(
         builder: (context) {
-          if (_isLoadingCamera || !_isInitialized) {
-            const Center(child: CircularProgressIndicator());
+          print("_isPermissAllowed = $_isPermissAllowed");
+          print("_isInitialized = $_isInitialized");
+          print("_isLoadingCamera = $_isLoadingCamera");
+
+          if (_isLoadingCamera) {
+            return const Center(child: CircularProgressIndicator());
           }
+
           if (!_isPermissAllowed) {
             return Center(
               child: Column(
@@ -183,7 +191,9 @@ class _ScanPageState extends State<ScanPage> {
                     ),
                     onPressed: () async {
                       await openAppSettings();
-                      _init();
+                      Future.delayed(Duration(milliseconds: 300), () {
+                        _init();
+                      });
                     },
                     child: Text(
                       'Buka Pengaturan',
@@ -194,6 +204,16 @@ class _ScanPageState extends State<ScanPage> {
               ),
             );
           }
+
+          if (!_isInitialized) {
+            return Center(
+              child: Text(
+                "Kamera gagal diinisialisasi",
+                style: AppTextStyles.regular,
+              ),
+            );
+          }
+
           return SafeArea(
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
