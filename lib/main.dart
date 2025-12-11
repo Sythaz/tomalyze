@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
 import 'package:tomalyze/presentation/views/main_page.dart';
 
 void main() {
