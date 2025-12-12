@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'core/providers/auth_provider.dart';
+import 'core/providers/tomato_provider.dart';
 import 'presentation/views/auth/login_page.dart';
 import 'presentation/views/main_page.dart';
 
@@ -15,6 +16,7 @@ void main() async {
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => TomatoProvider()),
       ],
       child: const MainApp(),
     ),
