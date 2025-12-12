@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
+import 'package:image_picker/image_picker.dart';
 
 import '../models/tomato_analysis.dart';
 import '../services/tomato_api_service.dart';
@@ -7,6 +8,7 @@ import '../services/tomato_api_service.dart';
 /// Provider untuk mengelola state analisis tomat
 class TomatoProvider extends ChangeNotifier {
   final TomatoApiService _apiService = TomatoApiService();
+  final ImagePicker _imagePicker = ImagePicker();
 
   // State
   bool _isLoading = false;
@@ -26,6 +28,23 @@ class TomatoProvider extends ChangeNotifier {
     _currentAnalysis = null;
     _errorMessage = null;
     notifyListeners();
+  }
+
+  /// Pick image dari camera atau gallery
+  Future<void> pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _imagePicker.pickImage(source: source);
+      
+      if (pickedFile != null) {
+        _selectedImage = File(pickedFile.path);
+        _currentAnalysis = null;
+        _errorMessage = null;
+        notifyListeners();
+      }
+    } catch (e) {
+      _errorMessage = 'Gagal memilih gambar: ${e.toString()}';
+      notifyListeners();
+    }
   }
 
   /// Analyze dengan SVM
