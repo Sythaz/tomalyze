@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:tomalyze/core/constants/app_colors.dart';
 import 'package:tomalyze/core/constants/app_icons.dart';
 import 'package:tomalyze/core/constants/app_text_styles.dart';
@@ -9,7 +12,7 @@ import 'package:tomalyze/presentation/widgets/custom_section.dart';
 
 import '../scan/scan_page.dart';
 import '../upload/upload_page.dart';
-import '../analysis/tomato_analysis_page.dart';
+import '../classification/classification_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -133,13 +136,21 @@ class _HomePageState extends State<HomePage> {
                   ),
                   backgroundColor: AppColors.successGreen,
                   shadowColor: AppColors.successGreen.withValues(alpha: 0.6),
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const TomatoAnalysisPage(),
-                      ),
-                    );
+                  onTap: () async {
+                    // Pilih gambar dulu sebelum navigasi ke ClassificationPage
+                    final ImagePicker picker = ImagePicker();
+                    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                    
+                    if (image != null) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ClassificationPage(
+                            photo: File(image.path),
+                          ),
+                        ),
+                      );
+                    }
                   },
                 ),
                 const SizedBox(height: 20),
