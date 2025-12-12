@@ -6,6 +6,8 @@ import 'package:tomalyze/presentation/widgets/custom_section.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_text_styles.dart';
+import '../../../core/models/tomato_analysis.dart';
+import '../../../core/services/tomato_api_service.dart';
 import '../../widgets/confirm_dialog.dart';
 
 class ClassificationPage extends StatefulWidget {
@@ -17,51 +19,160 @@ class ClassificationPage extends StatefulWidget {
 }
 
 class _ClassificationPageState extends State<ClassificationPage> {
+  final TomatoApiService _apiService = TomatoApiService();
   final Map<String, String> _labelMeansText = {
-    'ripe':
+    'Matang':
         'A ripe tomato is at its peak flavor and is ready for immediate consumption. It should be firm to the touch but have a slight give, with a vibrant, uniform color.',
-    'halfRipe':
-        'A half-ripe tomato is in the process of ripening. It may have a mix of green and red colors, indicating that it is not yet fully mature. The texture is firmer than a ripe tomato, and the flavor is less developed.',
-    'unripe':
-        'An unripe tomato is not yet ready for consumption. It is typically green in color and very firm to the touch. The flavor is sour and lacks the sweetness and juiciness of a ripe tomato. Unripe tomatoes are often used in cooking, such as in fried green tomato recipes.',
+    'Belum Matang':
+        'An unripe tomato is not yet ready for consumption. It is typically green in color and very firm to the touch. The flavor is sour and lacks the sweetness and juiciness of a ripe tomato.',
   };
-  final List<int> meanText = [];
+  final List<String> meanText = [];
 
-  List<ClassificationData> classifications = [
-    ClassificationData(
-      method: ClassificationMethod.svm,
-      label: ClassificationLabel.ripe,
-      percentage: 0.92,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.svm,
-      label: ClassificationLabel.halfRipe,
-      percentage: 0.06,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.svm,
-      label: ClassificationLabel.unripe,
-      percentage: 0.02,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.knn,
-      label: ClassificationLabel.ripe,
-      percentage: 0.88,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.knn,
-      label: ClassificationLabel.unripe,
-      percentage: 0.02,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.knn,
-      label: ClassificationLabel.halfRipe,
-      percentage: 0.10,
-    ),
-  ];
+  bool _isLoading = true;
+  String? _errorMessage;
+  TomatoAnalysis? _analysisResult;
+
+  List<ClassificationData> classifications = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _performAnalysis();
+  }
+
+  Future<void> _performAnalysis() async {
+    if (widget.photo == null) {
+      setState(() {
+        _errorMessage = 'No photo provided';
+        _isLoading = false;
+      });
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+      _errorMessage = null;
+    });
+
+    try {
+      // Call backend API with both SVM and KNN
+      final result = await _apiService.predictWithBoth(widget.photo!);
+      
+      setState(() {
+        _analysisResult = result;
+        _isLoading = false;
+        _parseAnalysisToClassifications();
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = e.toString();
+        _isLoading = false;
+      });
+    }
+  }
+
+  void _parseAnalysisToClassifications() {
+    if (_analysisResult == null) return;
+
+    classifications.clear();
+
+    // Parse SVM results
+    if (_analysisResult!.svmPrediction != null && _analysisResult!.svmProb != null) {
+      final svmProb = _analysisResult!.svmProb!;
+      classifications.addAll([
+        ClassificationData(
+          method: ClassificationMethod.svm,
+          label: _analysisResult!.svmPrediction!,
+          percentage: svmProb.isNotEmpty ? svmProb[0] : 0.0,
+        ),
+        ClassificationData(
+          method: ClassificationMethod.svm,
+          label: _analysisResult!.svmPrediction == 'Matang' ? 'Belum Matang' : 'Matang',
+          percentage: svmProb.length > 1 ? svmProb[1] : 0.0,
+        ),
+      ]);
+    }
+
+    // Parse KNN results
+    if (_analysisResult!.knnPrediction != null && _analysisResult!.knnProb != null) {
+      final knnProb = _analysisResult!.knnProb!;
+      classifications.addAll([
+        ClassificationData(
+          method: ClassificationMethod.knn,
+          label: _analysisResult!.knnPrediction!,
+          percentage: knnProb.isNotEmpty ? knnProb[0] : 0.0,
+        ),
+        ClassificationData(
+          method: ClassificationMethod.knn,
+          label: _analysisResult!.knnPrediction == 'Matang' ? 'Belum Matang' : 'Matang',
+          percentage: knnProb.length > 1 ? knnProb[1] : 0.0,
+        ),
+      ]);
+    }
+  }
+
+  String _getPredictionLabel() {
+    if (_analysisResult?.svmPrediction != null) {
+      return _analysisResult!.svmPrediction!;
+    }
+    return 'Unknown';
+  }
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: _buildAppBar(context),
+        body: const Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(color: AppColors.primaryRed),
+              SizedBox(height: 16),
+              Text('Analyzing tomato...', style: TextStyle(fontSize: 16)),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: AppColors.white,
+        appBar: _buildAppBar(context),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.error_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                Text(
+                  'Error: $_errorMessage',
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(fontSize: 16, color: Colors.red),
+                ),
+                const SizedBox(height: 24),
+                CustomButton(
+                  text: Text(
+                    'Try Again',
+                    style: AppTextStyles.bold.copyWith(
+                      fontSize: 16,
+                      color: AppColors.white,
+                    ),
+                  ),
+                  backgroundColor: AppColors.primaryRed,
+                  onTap: _performAnalysis,
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: _buildAppBar(context),
@@ -96,9 +207,9 @@ class _ClassificationPageState extends State<ClassificationPage> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
-                  'Ripe',
-                  style: TextStyle(
+                Text(
+                  _getPredictionLabel(),
+                  style: const TextStyle(
                     fontSize: 40,
                     fontWeight: FontWeight.bold,
                     color: AppColors.blackGrey,
@@ -122,7 +233,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         'What this means',
                         style: TextStyle(
                           fontSize: 20,
@@ -132,8 +243,8 @@ class _ClassificationPageState extends State<ClassificationPage> {
                       ),
                       const SizedBox(height: 12),
                       Text(
-                        _getFinalLabelText(meanText),
-                        style: TextStyle(
+                        _getFinalLabelText(),
+                        style: const TextStyle(
                           fontSize: 15,
                           height: 1.5,
                           color: AppColors.textGrey,
@@ -165,38 +276,37 @@ class _ClassificationPageState extends State<ClassificationPage> {
     );
   }
 
-  String _getFinalLabelText(List<int> meanText) {
-    final counts = {
-      0: meanText.where((e) => e == 0).length,
-      1: meanText.where((e) => e == 1).length,
-      2: meanText.where((e) => e == 2).length,
-    };
-
-    final maxCount = counts.values.reduce((a, b) => a > b ? a : b);
-    final majorityLabel = counts.entries
-        .firstWhere((e) => e.value == maxCount)
-        .key;
-
-    switch (majorityLabel) {
-      case 0:
-        return _labelMeansText['ripe']!;
-      case 1:
-        return _labelMeansText['halfRipe']!;
-      case 2:
-        return _labelMeansText['unripe']!;
-      default:
-        return 'Unknown';
+  String _getFinalLabelText() {
+    // Count majority prediction from both models
+    if (_analysisResult?.svmPrediction != null) {
+      meanText.add(_analysisResult!.svmPrediction!);
     }
+    if (_analysisResult?.knnPrediction != null) {
+      meanText.add(_analysisResult!.knnPrediction!);
+    }
+
+    final matangCount = meanText.where((e) => e == 'Matang').length;
+    final belumMatangCount = meanText.where((e) => e == 'Belum Matang').length;
+
+    final majorityLabel = matangCount > belumMatangCount ? 'Matang' : 'Belum Matang';
+    
+    return _labelMeansText[majorityLabel] ?? 'Unknown classification';
   }
 
   Widget _buildClassificationCard({
     required String title,
     required ClassificationMethod method,
   }) {
-    final highest = classifications
+    final methodClassifications = classifications
         .where((c) => c.method == method)
+        .toList();
+
+    if (methodClassifications.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final highest = methodClassifications
         .reduce((a, b) => a.percentage > b.percentage ? a : b);
-    meanText.add(highest.label.index);
 
     return CustomSection(
       child: Column(
@@ -211,22 +321,13 @@ class _ClassificationPageState extends State<ClassificationPage> {
             ),
           ),
           const SizedBox(height: 20),
-          ...classifications
-              .where((classification) => classification.method == method)
-              .map(
-                (classification) => ClassificationData(
-                  method: classification.method,
-                  label: classification.label,
-                  percentage: classification.percentage,
-                  isHighest:
-                      classification.percentage ==
-                      classifications
-                          .where((c) => c.method == method)
-                          .map((c) => c.percentage)
-                          .reduce((a, b) => a > b ? a : b),
-                ),
-              )
-              .toList()
+          ...methodClassifications
+              .map((classification) => ClassificationData(
+                    method: classification.method,
+                    label: classification.label,
+                    percentage: classification.percentage,
+                    isHighest: classification.percentage == highest.percentage,
+                  ))
               .map((data) => _buildProgressBar(data)),
         ],
       ),
@@ -246,11 +347,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                data.label == ClassificationLabel.ripe
-                    ? 'Ripe'
-                    : data.label == ClassificationLabel.halfRipe
-                    ? 'Half-ripe'
-                    : 'Unripe',
+                data.label,
                 style: TextStyle(
                   fontSize: 15,
                   fontWeight: FontWeight.w500,
@@ -289,7 +386,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
       backgroundColor: AppColors.white,
       centerTitle: true,
       leading: IconButton(
-        icon: const Icon(Icons.close_rounded, fontWeight: FontWeight.bold),
+        icon: const Icon(Icons.close_rounded),
         onPressed: () async {
           final isExit = await showConfirmationDialog(
             context: context,
@@ -315,11 +412,9 @@ class _ClassificationPageState extends State<ClassificationPage> {
 
 enum ClassificationMethod { svm, knn }
 
-enum ClassificationLabel { ripe, halfRipe, unripe }
-
 class ClassificationData {
   final ClassificationMethod method;
-  final ClassificationLabel label;
+  final String label;
   final double percentage;
   final bool isHighest;
 
