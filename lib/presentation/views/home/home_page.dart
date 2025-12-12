@@ -9,6 +9,7 @@ import 'package:tomalyze/presentation/widgets/custom_section.dart';
 
 import '../scan/scan_page.dart';
 import '../upload/upload_page.dart';
+import '../analysis/tomato_analysis_page.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -112,6 +113,31 @@ class _HomePageState extends State<HomePage> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => const UploadPage(),
+                      ),
+                    );
+                  },
+                ),
+                const SizedBox(height: 20),
+                CustomButton(
+                  text: Text(
+                    'Analisis Backend (ML)',
+                    style: AppTextStyles.bold.copyWith(
+                      fontSize: 16,
+                      color: AppColors.white,
+                    ),
+                  ),
+                  icon: const Icon(
+                    Icons.psychology,
+                    color: AppColors.white,
+                    size: 25,
+                  ),
+                  backgroundColor: AppColors.successGreen,
+                  shadowColor: AppColors.successGreen.withValues(alpha: 0.6),
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const TomatoAnalysisPage(),
                       ),
                     );
                   },
