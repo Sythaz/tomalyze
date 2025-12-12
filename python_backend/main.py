@@ -5,8 +5,8 @@ import pickle
 import cv2
 
 app = FastAPI(
-    title="Tomato Maturity API",
-    description="Backend inference dengan pipeline 100 persen sama dengan notebook"
+    title="Tomato Maturity Classification API",
+    description="API for tomato classification",
 )
 
 models = {}

@@ -1,9 +1,9 @@
-fastapi
-uvicorn
+fastapi==0.110.0
+uvicorn==0.29.0
 python-multipart
-scikit-learn
-numpy
-joblib
-pillow
-scikit-image
-opencv-python-headles
+numpy==1.26.4
+scikit-learn==1.3.0
+joblib==1.3.2
+pillow==10.2.0
+scikit-image==0.21.0
+opencv-python-headless==4.7.0.72
