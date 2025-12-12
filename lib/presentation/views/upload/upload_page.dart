@@ -11,6 +11,7 @@ import 'package:tomalyze/presentation/views/scan/scan_page.dart';
 import '../../../core/constants/app_text_styles.dart';
 import '../../widgets/confirm_dialog.dart';
 import '../../widgets/custom_button.dart';
+import '../classification/classification_page.dart';
 
 class UploadPage extends StatefulWidget {
   const UploadPage({super.key});
@@ -30,6 +31,12 @@ class _UploadPageState extends State<UploadPage> {
         _selectedImage = File(image.path);
       });
     }
+  }
+
+  @override
+  void dispose() {
+    _selectedImage = null;
+    super.dispose();
   }
 
   @override
@@ -180,6 +187,16 @@ class _UploadPageState extends State<UploadPage> {
                 ScaffoldMessenger.of(context)
                   ..hideCurrentSnackBar()
                   ..showSnackBar(snackBar);
+
+                return;
+              } else {
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) =>
+                        ClassificationPage(photo: _selectedImage),
+                  ),
+                );
               }
             },
           ),

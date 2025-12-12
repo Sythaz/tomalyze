@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tomalyze/core/constants/app_colors.dart';
@@ -39,23 +40,27 @@ class _HomePageState extends State<HomePage> {
                   children: [
                     Image.asset(
                       'assets/icon/app-icon.png',
-                      width: 30,
-                      height: 30,
+                      width: 50,
+                      height: 50,
                       fit: BoxFit.cover,
                     ),
                     const SizedBox(width: 10),
-                    Text(
-                      'Welcome, ${'Syafiq'}!',
-                      style: AppTextStyles.bold.copyWith(fontSize: 24),
+                    Flexible(
+                      child: Text(
+                        'Welcome, ${FirebaseAuth.instance.currentUser?.displayName ?? 'User'}!',
+                        style: AppTextStyles.bold.copyWith(fontSize: 24),
+                        overflow: TextOverflow.ellipsis,
+                        maxLines: 1,
+                      ),
                     ),
                   ],
                 ),
                 const SizedBox(height: 5),
                 Text(
-                  'Selamat datang di Tomalyze!',
+                  'Ready to check if your tomatoes are perfectly ripe for harvest?',
                   style: AppTextStyles.regular.copyWith(
-                    fontSize: 14,
-                    color: AppColors.textGrey,
+                    fontSize: 15,
+                    color: AppColors.blackGrey.withValues(alpha: 0.8),
                   ),
                 ),
                 const SizedBox(height: 20),

@@ -11,6 +11,8 @@ class AuthenticationProvider with ChangeNotifier {
     });
   }
 
+  User? get currentUser => user;
+
   bool get isLoggedIn => user != null;
 
   Future<void> logout() async {
