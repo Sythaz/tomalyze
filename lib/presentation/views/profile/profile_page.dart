@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:tomalyze/core/providers/auth_provider.dart';
 
 import '../../../core/constants/app_colors.dart';
 
@@ -16,8 +18,16 @@ class _ProfilePageState extends State<ProfilePage> {
       backgroundColor: AppColors.white,
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Container(
-            //
+          child: Center(
+            child: TextButton(
+              onPressed: () {
+                Provider.of<AuthenticationProvider>(
+                  context,
+                  listen: false,
+                ).logout();
+              },
+              child: Text('Logout'),
+            ),
           ),
         ),
       ),

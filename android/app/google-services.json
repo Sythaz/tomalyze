@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "743295158324",
+    "project_id": "tomalyze",
+    "storage_bucket": "tomalyze.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:743295158324:android:e0b3f93af8bd9336f62261",
+        "android_client_info": {
+          "package_name": "com.pbl.tomalyze"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "743295158324-9ad2vqplvkaj6cc29rscsukr0ta247qt.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.pbl.tomalyze",
+            "certificate_hash": "5075ac99b9de7b08dbde2cc517913a93d3c18edc"
+          }
+        },
+        {
+          "client_id": "743295158324-3mnum9put630e6me85to7o5ojjq06fk7.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCQuwx_81XttLU_2hPllL-tG10RlVBU2n4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "743295158324-3mnum9put630e6me85to7o5ojjq06fk7.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

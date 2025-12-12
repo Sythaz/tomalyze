@@ -216,7 +216,7 @@ class _ScanPageState extends State<ScanPage> {
 
           return SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Column(
                 children: [
                   _buildCameraPreview(context),

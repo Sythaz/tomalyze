@@ -153,7 +153,7 @@ class _UploadPageState extends State<UploadPage> {
       ),
       bottomNavigationBar: SafeArea(
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
           child: CustomButton(
             text: Text(
               'Continue',
