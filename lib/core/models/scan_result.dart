@@ -50,11 +50,11 @@ class ScanResult {
     if (svmPrediction == knnPrediction) {
       return svmPrediction;
     }
-    
+
     // Jika berbeda, ambil yang probabilitas lebih tinggi
     final svmMaxProb = svmProbability?.reduce((a, b) => a > b ? a : b) ?? 0.0;
     final knnMaxProb = knnProbability?.reduce((a, b) => a > b ? a : b) ?? 0.0;
-    
+
     return svmMaxProb > knnMaxProb ? svmPrediction : knnPrediction;
   }
 
@@ -62,7 +62,7 @@ class ScanResult {
   double get confidenceScore {
     final svmMaxProb = svmProbability?.reduce((a, b) => a > b ? a : b) ?? 0.0;
     final knnMaxProb = knnProbability?.reduce((a, b) => a > b ? a : b) ?? 0.0;
-    
+
     return ((svmMaxProb + knnMaxProb) / 2) * 100;
   }
 }

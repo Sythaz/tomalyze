@@ -12,7 +12,7 @@ class ApiService {
   /// Upload foto tomat dan dapatkan hasil klasifikasi dari SVM + KNN
   Future<ScanResult> predictTomato(File imageFile) async {
     final url = Uri.parse("$baseUrl/predict-all");
-    
+
     try {
       var request = http.MultipartRequest("POST", url);
 
@@ -22,7 +22,7 @@ class ApiService {
         imageFile.path,
         filename: imageFile.uri.pathSegments.last,
       );
-      
+
       request.files.add(imageData);
 
       // Kirim request
@@ -40,11 +40,10 @@ class ApiService {
 
       // Parse JSON response
       Map<String, dynamic> responseData = jsonDecode(responseBody);
-      
+
       print("✅ Prediksi sukses: $responseBody");
 
       return ScanResult.fromJson(responseData);
-      
     } catch (e) {
       print("❌ Error predict: $e");
       throw Exception("Gagal menghubungi server: $e");
@@ -54,16 +53,16 @@ class ApiService {
   /// Prediksi hanya menggunakan SVM
   Future<Map<String, dynamic>> predictSVM(File imageFile) async {
     final url = Uri.parse("$baseUrl/predict-svm");
-    
+
     try {
       var request = http.MultipartRequest("POST", url);
-      
+
       http.MultipartFile imageData = await http.MultipartFile.fromPath(
         'file',
         imageFile.path,
         filename: imageFile.uri.pathSegments.last,
       );
-      
+
       request.files.add(imageData);
       http.StreamedResponse response = await request.send();
       String responseBody = await response.stream.bytesToString();
@@ -73,7 +72,6 @@ class ApiService {
       }
 
       return jsonDecode(responseBody);
-      
     } catch (e) {
       throw Exception("Error SVM: $e");
     }
@@ -82,16 +80,16 @@ class ApiService {
   /// Prediksi hanya menggunakan KNN
   Future<Map<String, dynamic>> predictKNN(File imageFile) async {
     final url = Uri.parse("$baseUrl/predict-knn");
-    
+
     try {
       var request = http.MultipartRequest("POST", url);
-      
+
       http.MultipartFile imageData = await http.MultipartFile.fromPath(
         'file',
         imageFile.path,
         filename: imageFile.uri.pathSegments.last,
       );
-      
+
       request.files.add(imageData);
       http.StreamedResponse response = await request.send();
       String responseBody = await response.stream.bytesToString();
@@ -101,7 +99,6 @@ class ApiService {
       }
 
       return jsonDecode(responseBody);
-      
     } catch (e) {
       throw Exception("Error KNN: $e");
     }

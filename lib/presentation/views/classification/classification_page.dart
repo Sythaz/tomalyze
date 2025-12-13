@@ -105,10 +105,12 @@ class _ClassificationPageState extends State<ClassificationPage> {
       appBar: _buildAppBar(context),
       body: SafeArea(
         child: _isLoading
-            ? Center(child: CircularProgressIndicator(color: AppColors.primaryRed))
+            ? Center(
+                child: CircularProgressIndicator(color: AppColors.primaryRed),
+              )
             : _errorMessage != null
-                ? Center(child: Text(_errorMessage!))
-                : _buildResultView(),
+            ? Center(child: Text(_errorMessage!))
+            : _buildResultView(),
       ),
     );
   }
@@ -118,7 +120,8 @@ class _ClassificationPageState extends State<ClassificationPage> {
     final result = _scanResult!;
     final List<ClassificationData> classifications = [
       // SVM
-      if (result.svmProbability != null && result.svmProbability!.length == 3) ...[
+      if (result.svmProbability != null &&
+          result.svmProbability!.length == 3) ...[
         ClassificationData(
           method: ClassificationMethod.svm,
           label: ClassificationLabel.ripe,
@@ -136,7 +139,8 @@ class _ClassificationPageState extends State<ClassificationPage> {
         ),
       ],
       // KNN
-      if (result.knnProbability != null && result.knnProbability!.length == 3) ...[
+      if (result.knnProbability != null &&
+          result.knnProbability!.length == 3) ...[
         ClassificationData(
           method: ClassificationMethod.knn,
           label: ClassificationLabel.ripe,
@@ -281,7 +285,9 @@ class _ClassificationPageState extends State<ClassificationPage> {
   }) {
     final filtered = classifications.where((c) => c.method == method).toList();
     if (filtered.isEmpty) return SizedBox.shrink();
-    final highest = filtered.reduce((a, b) => a.percentage > b.percentage ? a : b);
+    final highest = filtered.reduce(
+      (a, b) => a.percentage > b.percentage ? a : b,
+    );
     meanText.add(highest.label.index);
 
     return CustomSection(
@@ -298,12 +304,14 @@ class _ClassificationPageState extends State<ClassificationPage> {
           ),
           const SizedBox(height: 20),
           ...filtered
-              .map((classification) => ClassificationData(
-                    method: classification.method,
-                    label: classification.label,
-                    percentage: classification.percentage,
-                    isHighest: classification.percentage == highest.percentage,
-                  ))
+              .map(
+                (classification) => ClassificationData(
+                  method: classification.method,
+                  label: classification.label,
+                  percentage: classification.percentage,
+                  isHighest: classification.percentage == highest.percentage,
+                ),
+              )
               .toList()
               .map((data) => _buildProgressBar(data)),
         ],
