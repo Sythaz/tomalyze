@@ -1,6 +1,8 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:tomalyze/core/models/scan_result.dart';
+import 'package:tomalyze/core/services/api_service.dart';
 import 'package:tomalyze/presentation/widgets/custom_button.dart';
 import 'package:tomalyze/presentation/widgets/custom_section.dart';
 
@@ -60,106 +62,189 @@ class _ClassificationPageState extends State<ClassificationPage> {
     ),
   ];
 
+  ScanResult? _scanResult;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchClassification();
+  }
+
+  Future<void> _fetchClassification() async {
+    if (widget.photo == null) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = "Foto tidak tersedia";
+      });
+      return;
+    }
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+      final result = await ApiService().predictTomato(widget.photo!);
+      setState(() {
+        _scanResult = result;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
       appBar: _buildAppBar(context),
       body: SafeArea(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(20.0),
-            child: Column(
-              children: [
-                Container(
-                  width: double.infinity,
-                  height: 350,
-                  decoration: BoxDecoration(
-                    color: AppColors.textFieldBg,
-                    borderRadius: BorderRadius.circular(24),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(24),
-                    child: Image.file(
-                      widget.photo!,
-                      fit: BoxFit.cover,
-                      errorBuilder: (context, error, stackTrace) {
-                        return const Center(
-                          child: Icon(
-                            Icons.image,
-                            size: 100,
-                            color: AppColors.textGrey,
-                          ),
-                        );
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                const Text(
-                  'Ripe',
-                  style: TextStyle(
-                    fontSize: 40,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.blackGrey,
-                  ),
-                ),
-                const SizedBox(height: 24),
+        child: _isLoading
+            ? Center(child: CircularProgressIndicator(color: AppColors.primaryRed))
+            : _errorMessage != null
+                ? Center(child: Text(_errorMessage!))
+                : _buildResultView(),
+      ),
+    );
+  }
 
-                _buildClassificationCard(
-                  title: 'SVM Classification',
-                  method: ClassificationMethod.svm,
-                ),
-                const SizedBox(height: 16),
-
-                _buildClassificationCard(
-                  title: 'KNN Classification',
-                  method: ClassificationMethod.knn,
-                ),
-                const SizedBox(height: 24),
-
-                CustomSection(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'What this means',
-                        style: TextStyle(
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.blackGrey,
-                        ),
+  Widget _buildResultView() {
+    // Konversi ScanResult ke List<ClassificationData>
+    final result = _scanResult!;
+    final List<ClassificationData> classifications = [
+      // SVM
+      if (result.svmProbability != null && result.svmProbability!.length == 3) ...[
+        ClassificationData(
+          method: ClassificationMethod.svm,
+          label: ClassificationLabel.ripe,
+          percentage: result.svmProbability![0],
+        ),
+        ClassificationData(
+          method: ClassificationMethod.svm,
+          label: ClassificationLabel.halfRipe,
+          percentage: result.svmProbability![1],
+        ),
+        ClassificationData(
+          method: ClassificationMethod.svm,
+          label: ClassificationLabel.unripe,
+          percentage: result.svmProbability![2],
+        ),
+      ],
+      // KNN
+      if (result.knnProbability != null && result.knnProbability!.length == 3) ...[
+        ClassificationData(
+          method: ClassificationMethod.knn,
+          label: ClassificationLabel.ripe,
+          percentage: result.knnProbability![0],
+        ),
+        ClassificationData(
+          method: ClassificationMethod.knn,
+          label: ClassificationLabel.halfRipe,
+          percentage: result.knnProbability![1],
+        ),
+        ClassificationData(
+          method: ClassificationMethod.knn,
+          label: ClassificationLabel.unripe,
+          percentage: result.knnProbability![2],
+        ),
+      ],
+    ];
+    meanText.clear();
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Column(
+          children: [
+            Container(
+              width: double.infinity,
+              height: 350,
+              decoration: BoxDecoration(
+                color: AppColors.textFieldBg,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(24),
+                child: Image.file(
+                  widget.photo!,
+                  fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return const Center(
+                      child: Icon(
+                        Icons.image,
+                        size: 100,
+                        color: AppColors.textGrey,
                       ),
-                      const SizedBox(height: 12),
-                      Text(
-                        _getFinalLabelText(meanText),
-                        style: TextStyle(
-                          fontSize: 15,
-                          height: 1.5,
-                          color: AppColors.textGrey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 24),
-
-                CustomButton(
-                  text: Text(
-                    'Save to History',
-                    style: AppTextStyles.bold.copyWith(
-                      fontSize: 16,
-                      color: AppColors.white,
-                    ),
-                  ),
-                  backgroundColor: AppColors.primaryRed,
-                  onTap: () {
-                    //
+                    );
                   },
                 ),
-              ],
+              ),
             ),
-          ),
+            const SizedBox(height: 24),
+            Text(
+              result.finalPrediction,
+              style: const TextStyle(
+                fontSize: 40,
+                fontWeight: FontWeight.bold,
+                color: AppColors.blackGrey,
+              ),
+            ),
+            const SizedBox(height: 24),
+            _buildClassificationCard(
+              title: 'SVM Classification',
+              method: ClassificationMethod.svm,
+              classifications: classifications,
+            ),
+            const SizedBox(height: 16),
+            _buildClassificationCard(
+              title: 'KNN Classification',
+              method: ClassificationMethod.knn,
+              classifications: classifications,
+            ),
+            const SizedBox(height: 24),
+            CustomSection(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'What this means',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.blackGrey,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    _getFinalLabelText(meanText),
+                    style: TextStyle(
+                      fontSize: 15,
+                      height: 1.5,
+                      color: AppColors.textGrey,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            CustomButton(
+              text: Text(
+                'Save to History',
+                style: AppTextStyles.bold.copyWith(
+                  fontSize: 16,
+                  color: AppColors.white,
+                ),
+              ),
+              backgroundColor: AppColors.primaryRed,
+              onTap: () {
+                //
+              },
+            ),
+          ],
         ),
       ),
     );
@@ -192,10 +277,11 @@ class _ClassificationPageState extends State<ClassificationPage> {
   Widget _buildClassificationCard({
     required String title,
     required ClassificationMethod method,
+    required List<ClassificationData> classifications,
   }) {
-    final highest = classifications
-        .where((c) => c.method == method)
-        .reduce((a, b) => a.percentage > b.percentage ? a : b);
+    final filtered = classifications.where((c) => c.method == method).toList();
+    if (filtered.isEmpty) return SizedBox.shrink();
+    final highest = filtered.reduce((a, b) => a.percentage > b.percentage ? a : b);
     meanText.add(highest.label.index);
 
     return CustomSection(
@@ -211,21 +297,13 @@ class _ClassificationPageState extends State<ClassificationPage> {
             ),
           ),
           const SizedBox(height: 20),
-          ...classifications
-              .where((classification) => classification.method == method)
-              .map(
-                (classification) => ClassificationData(
-                  method: classification.method,
-                  label: classification.label,
-                  percentage: classification.percentage,
-                  isHighest:
-                      classification.percentage ==
-                      classifications
-                          .where((c) => c.method == method)
-                          .map((c) => c.percentage)
-                          .reduce((a, b) => a > b ? a : b),
-                ),
-              )
+          ...filtered
+              .map((classification) => ClassificationData(
+                    method: classification.method,
+                    label: classification.label,
+                    percentage: classification.percentage,
+                    isHighest: classification.percentage == highest.percentage,
+                  ))
               .toList()
               .map((data) => _buildProgressBar(data)),
         ],
