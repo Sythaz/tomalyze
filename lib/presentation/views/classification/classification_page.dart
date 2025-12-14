@@ -1,7 +1,9 @@
 import 'dart:io';
 
+import 'package:awesome_snackbar_content/awesome_snackbar_content.dart';
 import 'package:flutter/material.dart';
 import 'package:tomalyze/core/models/scan_result.dart';
+import 'package:tomalyze/core/providers/history_provider.dart';
 import 'package:tomalyze/core/services/api_service.dart';
 import 'package:tomalyze/presentation/widgets/custom_button.dart';
 import 'package:tomalyze/presentation/widgets/custom_section.dart';
@@ -19,6 +21,9 @@ class ClassificationPage extends StatefulWidget {
 }
 
 class _ClassificationPageState extends State<ClassificationPage> {
+  File? photo;
+  final historyProvider = HistoryProvider();
+
   final Map<String, String> _labelMeansText = {
     'ripe':
         'A ripe tomato is at its peak flavor and is ready for immediate consumption. It should be firm to the touch but have a slight give, with a vibrant, uniform color.',
@@ -29,39 +34,6 @@ class _ClassificationPageState extends State<ClassificationPage> {
   };
   final List<int> meanText = [];
 
-  List<ClassificationData> classifications = [
-    ClassificationData(
-      method: ClassificationMethod.svm,
-      label: ClassificationLabel.ripe,
-      percentage: 0.92,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.svm,
-      label: ClassificationLabel.halfRipe,
-      percentage: 0.06,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.svm,
-      label: ClassificationLabel.unripe,
-      percentage: 0.02,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.knn,
-      label: ClassificationLabel.ripe,
-      percentage: 0.88,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.knn,
-      label: ClassificationLabel.unripe,
-      percentage: 0.02,
-    ),
-    ClassificationData(
-      method: ClassificationMethod.knn,
-      label: ClassificationLabel.halfRipe,
-      percentage: 0.10,
-    ),
-  ];
-
   ScanResult? _scanResult;
   bool _isLoading = true;
   String? _errorMessage;
@@ -69,11 +41,12 @@ class _ClassificationPageState extends State<ClassificationPage> {
   @override
   void initState() {
     super.initState();
+    photo = widget.photo;
     _fetchClassification();
   }
 
   Future<void> _fetchClassification() async {
-    if (widget.photo == null) {
+    if (photo == null) {
       setState(() {
         _isLoading = false;
         _errorMessage = "Foto tidak tersedia";
@@ -85,7 +58,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
         _isLoading = true;
         _errorMessage = null;
       });
-      final result = await ApiService().predictTomato(widget.photo!);
+      final result = await ApiService().predictTomato(photo!);
       setState(() {
         _scanResult = result;
         _isLoading = false;
@@ -125,12 +98,12 @@ class _ClassificationPageState extends State<ClassificationPage> {
         ClassificationData(
           method: ClassificationMethod.svm,
           label: ClassificationLabel.ripe,
-          percentage: result.svmProbability![0],
+          percentage: result.svmProbability![1],
         ),
         ClassificationData(
           method: ClassificationMethod.svm,
           label: ClassificationLabel.halfRipe,
-          percentage: result.svmProbability![1],
+          percentage: result.svmProbability![0],
         ),
         ClassificationData(
           method: ClassificationMethod.svm,
@@ -144,12 +117,12 @@ class _ClassificationPageState extends State<ClassificationPage> {
         ClassificationData(
           method: ClassificationMethod.knn,
           label: ClassificationLabel.ripe,
-          percentage: result.knnProbability![0],
+          percentage: result.knnProbability![1],
         ),
         ClassificationData(
           method: ClassificationMethod.knn,
           label: ClassificationLabel.halfRipe,
-          percentage: result.knnProbability![1],
+          percentage: result.knnProbability![0],
         ),
         ClassificationData(
           method: ClassificationMethod.knn,
@@ -174,7 +147,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(24),
                 child: Image.file(
-                  widget.photo!,
+                  photo!,
                   fit: BoxFit.cover,
                   errorBuilder: (context, error, stackTrace) {
                     return const Center(
@@ -190,7 +163,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
             ),
             const SizedBox(height: 24),
             Text(
-              result.finalPrediction,
+              result.finalPrediction.toUpperCase(),
               style: const TextStyle(
                 fontSize: 40,
                 fontWeight: FontWeight.bold,
@@ -244,8 +217,41 @@ class _ClassificationPageState extends State<ClassificationPage> {
                 ),
               ),
               backgroundColor: AppColors.primaryRed,
-              onTap: () {
-                //
+              onTap: () async {
+                print('Saving to history...');
+                final isSuccess = await historyProvider.saveToHistory(
+                  imageFile: photo!,
+                  svmPrediction: result.svmPrediction,
+                  svmProbability: result.svmProbability ?? [],
+                  knnPrediction: result.knnPrediction,
+                  knnProbability: result.knnProbability ?? [],
+                );
+
+                final snackBar = SnackBar(
+                  elevation: 0,
+                  behavior: SnackBarBehavior.floating,
+                  backgroundColor: Colors.transparent,
+                  content: AwesomeSnackbarContent(
+                    title: isSuccess ? "Success" : "Failed",
+                    message: isSuccess
+                        ? "Classification result saved to history."
+                        : "Failed to save classification result.",
+
+                    contentType: isSuccess
+                        ? ContentType.success
+                        : ContentType.failure,
+                  ),
+                );
+                // ignore: use_build_context_synchronously
+                ScaffoldMessenger.of(context)
+                  ..hideCurrentSnackBar()
+                  ..showSnackBar(snackBar);
+
+                if (isSuccess) {
+                  historyProvider.loadHistory();
+                  // ignore: use_build_context_synchronously
+                  Navigator.pop(context);
+                }
               },
             ),
           ],
@@ -268,9 +274,9 @@ class _ClassificationPageState extends State<ClassificationPage> {
 
     switch (majorityLabel) {
       case 0:
-        return _labelMeansText['ripe']!;
-      case 1:
         return _labelMeansText['halfRipe']!;
+      case 1:
+        return _labelMeansText['ripe']!;
       case 2:
         return _labelMeansText['unripe']!;
       default:
@@ -401,7 +407,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
 
 enum ClassificationMethod { svm, knn }
 
-enum ClassificationLabel { ripe, halfRipe, unripe }
+enum ClassificationLabel { halfRipe, ripe, unripe }
 
 class ClassificationData {
   final ClassificationMethod method;
