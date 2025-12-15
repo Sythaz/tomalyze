@@ -9,6 +9,19 @@ class HistoryCard extends StatelessWidget {
 
   const HistoryCard({super.key, required this.history});
 
+  String _labelText(String label) {
+    switch (label) {
+      case 'ripe':
+        return 'Ripe';
+      case 'half-ripe':
+        return 'Half-ripe';
+      case 'unripe':
+        return 'Unripe';
+      default:
+        return 'Unknown';
+    }
+  }
+
   Color _labelColor(String label) {
     switch (label) {
       case 'ripe':
@@ -29,8 +42,7 @@ class HistoryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final color = _labelColor(history.svmPrediction);
-    final confidence =
-        (_maxProbability(history.svmProbability) * 100).toInt();
+    final confidence = (_maxProbability(history.svmProbability) * 100).toInt();
 
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
@@ -39,10 +51,7 @@ class HistoryCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(16),
         color: Colors.white,
         boxShadow: [
-          BoxShadow(
-            blurRadius: 8,
-            color: Colors.black.withValues(alpha: 0.05),
-          )
+          BoxShadow(blurRadius: 8, color: Colors.black.withValues(alpha: 0.05)),
         ],
       ),
       child: Row(
@@ -63,13 +72,7 @@ class HistoryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  history.svmPrediction.toUpperCase(),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
+                Text(_labelText(history.svmPrediction)),
                 const SizedBox(height: 4),
                 Text(
                   history.createdAt != null
@@ -81,8 +84,7 @@ class HistoryCard extends StatelessWidget {
             ),
           ),
           Container(
-            padding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
             decoration: BoxDecoration(
               color: color,
               borderRadius: BorderRadius.circular(12),
