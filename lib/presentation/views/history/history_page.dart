@@ -34,13 +34,10 @@ class _HistoryPageState extends State<HistoryPage> {
         .where((e) => e.createdAt != null && _isSameDay(e.createdAt!, now))
         .toList();
 
-    final yesterday = histories
-        .where(
-          (e) =>
-              e.createdAt != null &&
-              _isSameDay(e.createdAt!, now.subtract(const Duration(days: 1))),
-        )
-        .toList();
+    final earlier = histories.where((e) {
+  if (e.createdAt == null) return false;
+  return !_isSameDay(e.createdAt!, now);
+}).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -91,13 +88,13 @@ class _HistoryPageState extends State<HistoryPage> {
                   ...today.map((e) => HistoryCard(history: e)),
                   const SizedBox(height: 24),
                 ],
-                if (yesterday.isNotEmpty) ...[
+                if (earlier.isNotEmpty) ...[
                   const Text(
-                    'Yesterday',
+                    'Earlier',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 12),
-                  ...yesterday.map((e) => HistoryCard(history: e)),
+                  ...earlier.map((e) => HistoryCard(history: e)),
                 ],
               ],
             ),
