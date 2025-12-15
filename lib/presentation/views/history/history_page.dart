@@ -40,6 +40,7 @@ class _HistoryPageState extends State<HistoryPage> {
 }).toList();
 
     return Scaffold(
+      backgroundColor: Colors.white,
       appBar: AppBar(
         title: const Text('History Scan'),
         actions: [

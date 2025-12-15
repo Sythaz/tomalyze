@@ -44,6 +44,7 @@ class MainApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Tomalyze',
       home: auth.user != null ? const MainPage() : const LoginPage(),
+      // home:  HomePage(),
     );
   }
 }
