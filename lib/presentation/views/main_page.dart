@@ -72,7 +72,7 @@ class _MainPageState extends State<MainPage> {
                   _pushTab(context, const UploadPage());
                   break;
                 case 3:
-                  _changeTab(value);
+                  _pushTab(context, const ProfilePage());
                   break;
                 default:
               }
