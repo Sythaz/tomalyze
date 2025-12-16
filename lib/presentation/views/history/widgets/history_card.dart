@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:timeago/timeago.dart' as timeago;
+import 'package:tomalyze/core/constants/app_text_styles.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/models/history_classification_model.dart';
 
 class HistoryCard extends StatelessWidget {
@@ -72,13 +74,22 @@ class HistoryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(_labelText(history.svmPrediction)),
+                Text(
+                  _labelText(history.svmPrediction),
+                  style: AppTextStyles.bold.copyWith(
+                    fontSize: 12,
+                    color: color,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   history.createdAt != null
                       ? timeago.format(history.createdAt!)
                       : '-',
-                  style: TextStyle(color: Colors.grey[600]),
+                  style: AppTextStyles.regular.copyWith(
+                    fontSize: 12,
+                    color: AppColors.blackGrey,
+                  ),
                 ),
               ],
             ),

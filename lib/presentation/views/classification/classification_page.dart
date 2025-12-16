@@ -248,7 +248,7 @@ class _ClassificationPageState extends State<ClassificationPage> {
                   ..showSnackBar(snackBar);
 
                 if (isSuccess) {
-                  historyProvider.loadHistory();
+                  await historyProvider.loadHistory();
                   // ignore: use_build_context_synchronously
                   Navigator.pop(context);
                 }

@@ -4,8 +4,6 @@ import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:tomalyze/core/providers/local_auth_provider.dart';
 import 'package:tomalyze/firebase_options.dart';
-import 'package:tomalyze/presentation/views/history/history_page.dart';
-import 'package:tomalyze/presentation/views/home/home_page.dart';
 
 import 'core/models/history_classification_model.dart';
 import 'core/providers/auth_provider.dart';

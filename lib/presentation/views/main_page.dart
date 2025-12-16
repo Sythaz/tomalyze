@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:tomalyze/core/constants/app_icons.dart';
+import 'package:tomalyze/presentation/views/history/history_page.dart';
 import 'package:tomalyze/presentation/views/home/home_page.dart';
 import 'package:tomalyze/presentation/views/profile/profile_page.dart';
 import 'package:tomalyze/presentation/views/scan/scan_page.dart';
@@ -20,6 +21,7 @@ class _MainPageState extends State<MainPage> {
 
   final List<Widget> _pages = const [
     HomePage(),
+    HistoryPage(),
     ScanPage(),
     UploadPage(),
     ProfilePage(),
@@ -66,12 +68,15 @@ class _MainPageState extends State<MainPage> {
                 case 0:
                   _changeTab(value);
                 case 1:
-                  _pushTab(context, const ScanPage());
+                  _pushTab(context, const HistoryPage());
                   break;
                 case 2:
-                  _pushTab(context, const UploadPage());
+                  _pushTab(context, const ScanPage());
                   break;
                 case 3:
+                  _pushTab(context, const UploadPage());
+                  break;
+                case 4:
                   _pushTab(context, const ProfilePage());
                   break;
                 default:
@@ -92,9 +97,14 @@ class _MainPageState extends State<MainPage> {
         index: 0,
         iconSize: 20,
       ),
-      _buildNavSvgItem(icon: AppIcons.camera, label: 'Scan', index: 1),
-      _buildNavSvgItem(icon: AppIcons.image, label: 'Upload', index: 2),
-      _buildNavIconItem(icon: Icons.person, label: 'Profile', index: 3),
+      _buildNavIconItem(
+        icon: Icons.history_rounded,
+        label: 'History',
+        index: 1,
+      ),
+      _buildNavSvgItem(icon: AppIcons.camera, label: 'Scan', index: 2),
+      _buildNavSvgItem(icon: AppIcons.image, label: 'Upload', index: 3),
+      _buildNavIconItem(icon: Icons.person, label: 'Profile', index: 4),
     ];
   }
 

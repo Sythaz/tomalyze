@@ -35,13 +35,17 @@ class _HistoryPageState extends State<HistoryPage> {
         .toList();
 
     final earlier = histories.where((e) {
-  if (e.createdAt == null) return false;
-  return !_isSameDay(e.createdAt!, now);
-}).toList();
+      if (e.createdAt == null) return false;
+      return !_isSameDay(e.createdAt!, now);
+    }).toList();
+
+    today.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
+    earlier.sort((a, b) => b.createdAt!.compareTo(a.createdAt!));
 
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
+        backgroundColor: Colors.white,
         title: const Text('History Scan'),
         actions: [
           if (histories.isNotEmpty)

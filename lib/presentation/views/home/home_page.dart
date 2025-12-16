@@ -1,11 +1,14 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:tomalyze/core/constants/app_colors.dart';
 import 'package:tomalyze/core/constants/app_icons.dart';
 import 'package:tomalyze/core/constants/app_text_styles.dart';
+import 'package:tomalyze/core/providers/history_provider.dart';
 import 'package:tomalyze/presentation/widgets/custom_button.dart';
 import 'package:tomalyze/presentation/widgets/custom_section.dart';
+import 'package:tomalyze/presentation/views/history/widgets/history_card.dart';
 import '../history/history_page.dart';
 
 import '../scan/scan_page.dart';
@@ -19,13 +22,20 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final List<Map<String, String>> _recentScans = [
-    {'stage': 'Ripe', 'time': 'Scanned 2 hours ago', 'score': '90%'},
-    {'stage': 'Half-ripe', 'time': 'Scanned 5 hours ago', 'score': '75%'},
-    {'stage': 'Unripe', 'time': 'Scanned 1 day ago', 'score': '20%'},
-    {'stage': 'Ripe', 'time': 'Scanned 3 days ago', 'score': '88%'},
-    {'stage': 'Half-ripe', 'time': 'Scanned 5 days ago', 'score': '60%'},
-  ];
+  // @override
+  // void initState() {
+  //   super.initState();
+  //   WidgetsBinding.instance.addPostFrameCallback((_) {
+  //     context.read<HistoryProvider>().loadHistory();
+  //   });
+  // }
+
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   context.read<HistoryProvider>().loadHistory();
+  // }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -253,84 +263,86 @@ class _HomePageState extends State<HomePage> {
                   ],
                 ),
                 const SizedBox(height: 10),
-                Column(
-                  children: [
-                    ..._recentScans.asMap().entries.take(3).map((entry) {
-                      final index = entry.key;
-                      final scan = entry.value;
-                      return Container(
-                        margin: index != 0
-                            ? const EdgeInsets.only(top: 10)
-                            : null,
-                        child: CustomSection(
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
-                                children: [
-                                  Image.asset(
-                                    'assets/icon/app-icon.png',
-                                    width: 50,
-                                    height: 50,
+                Consumer<HistoryProvider>(
+                  builder: (context, historyProvider, _) {
+                    final historyItems = context
+                        .watch<HistoryProvider>()
+                        .historyItems;
+
+                    if (historyItems.isEmpty) {
+                      return CustomSection(
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              children: [
+                                Icon(
+                                  Icons.history,
+                                  size: 40,
+                                  color: AppColors.blackGrey.withValues(
+                                    alpha: 0.5,
                                   ),
-                                  const SizedBox(width: 10),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        scan['stage'] ?? '',
-                                        style: AppTextStyles.bold.copyWith(
-                                          fontSize: 12,
-                                          color: scan['stage'] == 'Ripe'
-                                              ? AppColors.errorRed
-                                              : (scan['stage'] == 'Unripe'
-                                                    ? AppColors.successGreen
-                                                    : AppColors.warningOrange),
-                                        ),
-                                      ),
-                                      Text(
-                                        scan['time'] ?? '',
-                                        style: AppTextStyles.regular.copyWith(
-                                          fontSize: 12,
-                                          color: AppColors.blackGrey,
-                                        ),
-                                      ),
-                                    ],
+                                ),
+                                const SizedBox(height: 10),
+                                Text(
+                                  'Belum ada riwayat scan',
+                                  style: AppTextStyles.semiBold.copyWith(
+                                    fontSize: 14,
+                                    color: AppColors.blackGrey.withValues(
+                                      alpha: 0.6,
+                                    ),
                                   ),
-                                ],
-                              ),
-                              customBadge(
-                                backgroundColor: AppColors.primaryRed,
-                                text: scan['score'] ?? '',
-                              ),
-                            ],
-                          ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ],
                         ),
                       );
-                    }),
-                    if (_recentScans.length > 3) const SizedBox(height: 10),
-                    if (_recentScans.length > 3)
-                      InkWell(
-                        borderRadius: BorderRadius.circular(8),
-                        onTap: () {
-                          //
-                        },
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 5,
-                          ),
-                          child: Text(
-                            'And more..',
-                            style: AppTextStyles.regular.copyWith(
-                              fontSize: 12,
-                              color: AppColors.blackGrey,
+                    }
+
+                    final recentScans = historyItems.toList()
+                      ..sort(
+                        (a, b) => (b.createdAt ?? DateTime.now()).compareTo(
+                          a.createdAt ?? DateTime.now(),
+                        ),
+                      );
+
+                    return Column(
+                      children: [
+                        ...recentScans
+                            .take(3)
+                            .map((item) => HistoryCard(history: item)),
+                        if (historyItems.length > 3) const SizedBox(height: 10),
+                        if (historyItems.length > 3)
+                          InkWell(
+                            borderRadius: BorderRadius.circular(8),
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const HistoryPage(),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 20,
+                                vertical: 5,
+                              ),
+                              child: Text(
+                                'And more..',
+                                style: AppTextStyles.regular.copyWith(
+                                  fontSize: 12,
+                                  color: AppColors.blackGrey,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                  ],
+                      ],
+                    );
+                  },
                 ),
               ],
             ),
