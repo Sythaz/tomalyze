@@ -6,6 +6,7 @@ class CustomButton extends StatelessWidget {
   final Color backgroundColor;
   final Color? shadowColor;
   final Size? size;
+  final double? borderRadius;
   final Function() onTap;
   const CustomButton({
     super.key,
@@ -14,6 +15,7 @@ class CustomButton extends StatelessWidget {
     required this.backgroundColor,
     this.shadowColor,
     this.size,
+    this.borderRadius,
     required this.onTap,
   });
 
@@ -26,7 +28,9 @@ class CustomButton extends StatelessWidget {
         minimumSize: size ?? const Size(double.infinity, 60),
         shadowColor: shadowColor?.withValues(alpha: 0.6) ?? Colors.transparent,
         elevation: 3,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(borderRadius ?? 24),
+        ),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,

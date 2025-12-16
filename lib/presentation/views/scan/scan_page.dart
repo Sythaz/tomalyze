@@ -12,6 +12,7 @@ import 'package:tomalyze/core/constants/app_text_styles.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../widgets/camera_frame.dart';
 import '../../widgets/confirm_dialog.dart';
+import '../classification/classification_page.dart';
 
 class ScanPage extends StatefulWidget {
   const ScanPage({super.key});
@@ -153,6 +154,8 @@ class _ScanPageState extends State<ScanPage> {
       DeviceOrientation.portraitDown,
     ]);
 
+    _capturedPhoto = null;
+
     super.dispose();
   }
 
@@ -216,7 +219,7 @@ class _ScanPageState extends State<ScanPage> {
 
           return SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
+              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: Column(
                 children: [
                   _buildCameraPreview(context),
@@ -366,6 +369,14 @@ class _ScanPageState extends State<ScanPage> {
                 ..showSnackBar(snackBar);
 
               return;
+            } else {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      ClassificationPage(photo: _capturedPhoto),
+                ),
+              );
             }
           },
           child: Text(

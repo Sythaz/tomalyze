@@ -15,4 +15,6 @@ class AppColors {
   static const Color infoBlue = Color(0xff53A3FF);
 
   static const Color buttonPink = Color(0xffFADADD);
+
+  static const Color textFieldBg = Color(0xffF6F6F6);
 }

@@ -1,10 +1,32 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:tomalyze/presentation/views/main_page.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:provider/provider.dart';
+import 'package:tomalyze/firebase_options.dart';
 
-void main() {
+import 'core/models/history_classification_model.dart';
+import 'core/providers/auth_provider.dart';
+import 'presentation/views/auth/login_page.dart';
+import 'presentation/views/main_page.dart';
+
+void main() async {
   // debugPaintSizeEnabled = true;
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MainApp());
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+
+  // Hive
+  await Hive.initFlutter();
+  Hive.registerAdapter(HistoryClassificationModelAdapter());
+  await Hive.openBox<HistoryClassificationModel>('classification_history');
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+      ],
+      child: const MainApp(),
+    ),
+  );
 }
 
 class MainApp extends StatelessWidget {
@@ -12,10 +34,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final auth = Provider.of<AuthenticationProvider>(context);
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tomalyze',
-      home: MainPage(),
+      home: auth.user != null ? const MainPage() : const LoginPage(),
     );
   }
 }
