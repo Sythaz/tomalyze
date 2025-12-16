@@ -6,6 +6,7 @@ import 'package:tomalyze/core/constants/app_icons.dart';
 import 'package:tomalyze/core/constants/app_text_styles.dart';
 import 'package:tomalyze/presentation/widgets/custom_button.dart';
 import 'package:tomalyze/presentation/widgets/custom_section.dart';
+import '../history/history_page.dart';
 
 import '../scan/scan_page.dart';
 import '../upload/upload_page.dart';
@@ -234,7 +235,12 @@ class _HomePageState extends State<HomePage> {
                     ),
                     GestureDetector(
                       onTap: () {
-                        //
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const HistoryPage(),
+                          ),
+                        );
                       },
                       child: Text(
                         'Show all',
