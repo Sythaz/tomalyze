@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:tomalyze/core/constants/app_colors.dart';
 import 'package:tomalyze/core/constants/app_text_styles.dart';
+import 'package:tomalyze/core/providers/local_auth_provider.dart';
 import 'package:tomalyze/presentation/widgets/custom_button.dart';
 
 import '../../../core/services/google_auth_service.dart';
@@ -16,9 +18,22 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  TextEditingController? _usernameController;
-  TextEditingController? _passwordController;
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
   bool _isPasswordObscured = true;
+  bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +71,7 @@ class _LoginPageState extends State<LoginPage> {
                       const SizedBox(height: 8),
                       TextFormField(
                         controller: _usernameController,
-                        keyboardType: TextInputType.phone,
+                        keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.next,
                         style: AppTextStyles.regular.copyWith(fontSize: 14),
                         decoration: InputDecoration(
@@ -135,11 +150,45 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                         borderRadius: 12,
                         backgroundColor: AppColors.primaryRed,
-                        onTap: () {
-                          if (_formKey.currentState!.validate()) {
-                            // Process login
-                          }
-                        },
+                        onTap: _isLoading
+                            ? null
+                            : () async {
+                                if (!_formKey.currentState!.validate()) return;
+                                FocusScope.of(context).unfocus();
+
+                                setState(() => _isLoading = true);
+                                final localAuth = context
+                                    .read<LocalAuthProvider>();
+                                final success = await localAuth.login(
+                                  username: _usernameController.text.trim(),
+                                  password: _passwordController.text.trim(),
+                                );
+
+                                if (!mounted) return;
+
+                                if (success) {
+                                  Navigator.pushReplacement(
+                                    // ignore: use_build_context_synchronously
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const MainPage(),
+                                    ),
+                                  );
+                                } else {
+                                  // ignore: use_build_context_synchronously
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text(
+                                        'Username atau password salah',
+                                      ),
+                                    ),
+                                  );
+                                }
+
+                                if (mounted) {
+                                  setState(() => _isLoading = false);
+                                }
+                              },
                       ),
                       const SizedBox(height: 40),
                       Padding(

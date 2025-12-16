@@ -2,6 +2,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:tomalyze/core/providers/local_auth_provider.dart';
 import 'package:tomalyze/firebase_options.dart';
 
 import 'core/models/history_classification_model.dart';
@@ -18,11 +19,13 @@ void main() async {
   await Hive.initFlutter();
   Hive.registerAdapter(HistoryClassificationModelAdapter());
   await Hive.openBox<HistoryClassificationModel>('classification_history');
+  await Hive.openBox('local_auth');
 
   runApp(
     MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
+        ChangeNotifierProvider(create: (_) => LocalAuthProvider()),
       ],
       child: const MainApp(),
     ),
@@ -35,11 +38,13 @@ class MainApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthenticationProvider>(context);
+    final authLocal = Provider.of<LocalAuthProvider>(context);
+    bool isLoggedIn = auth.isLoggedIn || authLocal.isLoggedIn;
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Tomalyze',
-      home: auth.user != null ? const MainPage() : const LoginPage(),
+      home: isLoggedIn ? const MainPage() : const LoginPage(),
     );
   }
 }

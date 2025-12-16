@@ -25,7 +25,7 @@ class AppTextStyles {
   static const semiBold = TextStyle(
     fontFamily: _font,
     fontWeight: FontWeight.w600,
-    color: AppColors.blackGrey,
+    color: AppColors.white,
   );
 
   static const bold = TextStyle(
